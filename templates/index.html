@@ -1,75 +1,108 @@
+<!-- File: templates/index.html (moved Latest News to top for "index panel" prominence, added error display) -->
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>AI Misinformation Detection</title>
+    <meta charset="UTF-8">
+    <title>Fake News Detection Web App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/static/style.css">
-    <style>
-        .article { border: 1px solid #ddd; margin: 10px; padding: 10px; border-radius: 8px; }
-        .misinfo { background: #ffebee; }
-        .genuine { background: #e8f5e9; }
-    </style>
+    <!-- Optional: <script src="/static/script.js"></script> for client-side fallback -->
 </head>
 <body>
 
-<h1>🛡️ AI Misinformation & Influence Detection</h1>
+<div class="container">
 
-<h2>Single Text Analysis</h2>
-<textarea id="text" placeholder="Enter news article or social media post..."></textarea>
-<button onclick="analyze()">Analyze Text</button>
+    <h1>📰 Fake News Detection Web App</h1>
 
-<h2>Fetch & Scan Recent News</h2>
-<input type="text" id="query" placeholder="Search topic (e.g. AI, election, health)" value="AI OR vaccine">
-<button onclick="fetchNews()">Fetch & Analyze News</button>
+    <!-- LATEST NEWS SECTION (moved to top as "index panel") -->
+    <h2>Latest News</h2>
 
-<div id="output"></div>
-<div id="news-results"></div>
+    {% if latest_news %}
+        <div class="news-grid">
+            {% for news in latest_news %}
+                <div class="news-card">
+                    <!-- Image -->
+                    {% if news.urlToImage %}
+                        <img 
+                            src="{{ news.urlToImage }}" 
+                            alt="{{ news.title | truncate(60) }}" 
+                            class="news-image"
+                            loading="lazy"
+                            onerror="this.style.display='none';"
+                        >
+                    {% else %}
+                        <div class="no-image">No image available</div>
+                    {% endif %}
 
-<script>
-async function analyze() {
-    const text = document.getElementById("text").value;
-    const response = await fetch("/predict", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ text })
-    });
-    const data = await response.json();
-    document.getElementById("output").innerHTML = `
-        <h3>Result</h3>
-        <p><b>Classification:</b> ${data.label}</p>
-        <p><b>Confidence:</b> ${data.confidence}%</p>
-        <p><b>Influence Risk Score:</b> ${data.risk_score}</p>
-    `;
-}
+                    <!-- Title + Source -->
+                    <h3>
+                        <a href="{{ news.url }}" target="_blank" rel="noopener noreferrer">
+                            {{ news.title }}
+                        </a>
+                    </h3>
 
-async function fetchNews() {
-    const query = document.getElementById("query").value;
-    const url = `/fetch_news?q=${encodeURIComponent(query)}`;
-    const response = await fetch(url);
-    const data = await response.json();
+                    <p class="source">
+                        {{ news.source.name }} • 
+                        {{ news.publishedAt | slice(0,10) }}
+                    </p>
 
-    let html = "<h3>Analyzed News Articles</h3>";
-    if (data.error) {
-        html += `<p style="color:red;">Error: ${data.error}</p>`;
-    } else if (data.articles.length === 0) {
-        html += "<p>No articles found.</p>";
-    } else {
-        data.articles.forEach(article => {
-            const cls = article.label === "Misinformation" ? "misinfo" : "genuine";
-            html += `
-                <div class="article ${cls}">
-                    <h4><a href="$$   {article.url}" target="_blank">   $${article.title}</a></h4>
-                    <p><b>Source:</b> ${article.source} | <b>Published:</b> ${article.publishedAt}</p>
-                    <p>${article.text_snippet}</p>
-                    <p><b>Classification:</b> ${article.label}</p>
-                    <p><b>Confidence:</b> ${article.confidence}%</p>
-                    <p><b>Influence Risk:</b> ${article.risk_score}</p>
+                    <!-- Description -->
+                    {% if news.description %}
+                        <p class="description">
+                            {{ news.description | truncate(120) }}
+                        </p>
+                    {% endif %}
+
+                    <!-- Video/Read More Link (enhanced for more platforms) -->
+                    {% if news.url %}
+                        {% if 'youtube.com' in news.url or 'youtu.be' in news.url or 'vimeo.com' in news.url %}
+                            <a href="{{ news.url }}" target="_blank" rel="noopener noreferrer">Watch Video</a>
+                        {% else %}
+                            <a href="{{ news.url }}" target="_blank" rel="noopener noreferrer">Read More</a>
+                        {% endif %}
+                    {% endif %}
                 </div>
-            `;
-        });
-    }
-    document.getElementById("news-results").innerHTML = html;
-}
-</script>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="error">{{ latest_error or "No latest news available at the moment. Please check your NEWS_API_KEY or try again later." }}</p>
+    {% endif %}
+
+    <hr>
+
+    <!-- NEWS INPUT FORM -->
+    <form method="POST" action="/">
+        <textarea
+            name="news"
+            placeholder="Enter news article, headline, or factual claim..."
+            required
+        >{{ news_text }}</textarea>
+
+        <button type="submit">Check News</button>
+    </form>
+
+    <!-- RESULT SECTION -->
+    {% if result %}
+        <h2 class="result">{{ result }}</h2>
+        <p><strong>Explanation:</strong> {{ explanation }}</p>
+    {% endif %}
+
+    {% if confidence %}
+        <p class="confidence">Confidence: {{ confidence }}%</p>
+        <p class="confidence-note">
+            Confidence indicates model certainty, not factual truth.
+        </p>
+    {% endif %}
+
+    {% if influence %}
+        <p class="influence">{{ influence }}</p>
+    {% endif %}
+
+    {% if error %}
+        <p class="error">{{ error }}</p>
+    {% endif %}
+
+</div>
 
 </body>
 </html>
