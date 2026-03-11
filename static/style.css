@@ -1,32 +1,136 @@
+/* File: static/style.css (enhanced with news grid styles) */
 body {
-    background-color: #0f172a;
-    color: white;
     font-family: Arial, sans-serif;
-    padding: 40px;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 20px;
 }
 
-h1 {
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+h1, h2 {
     text-align: center;
 }
 
 textarea {
     width: 100%;
-    height: 120px;
+    height: 150px;
     padding: 10px;
-    margin-top: 20px;
-    font-size: 16px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
 }
 
 button {
-    margin-top: 10px;
-    padding: 10px 20px;
-    font-size: 16px;
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
     cursor: pointer;
 }
 
-#output {
+button:hover {
+    background-color: #0056b3;
+}
+
+.result {
+    color: #28a745;
+}
+
+.confidence {
+    font-weight: bold;
+}
+
+.confidence-note {
+    font-size: 0.8em;
+    color: #6c757d;
+}
+
+.influence {
+    font-style: italic;
+}
+
+.error {
+    color: red;
+    font-weight: bold;
+}
+
+hr {
+    margin: 20px 0;
+}
+
+/* Enhanced news styles */
+.news-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
     margin-top: 20px;
-    background: #1e293b;
-    padding: 15px;
+}
+
+.news-card {
+    background: #fff;
     border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+}
+
+.news-card:hover {
+    transform: translateY(-4px);
+}
+
+.news-image {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    display: block;
+}
+
+.no-image {
+    height: 160px;
+    background: #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #888;
+    font-size: 0.9em;
+}
+
+.news-card h3 {
+    margin: 12px 12px 6px;
+    font-size: 1.1em;
+    line-height: 1.4;
+}
+
+.news-card h3 a {
+    color: #1a1a1a;
+    text-decoration: none;
+}
+
+.news-card h3 a:hover {
+    color: #007bff;
+    text-decoration: underline;
+}
+
+.source {
+    margin: 0 12px 8px;
+    color: #666;
+    font-size: 0.85em;
+}
+
+.description {
+    margin: 0 12px 12px;
+    color: #444;
+    font-size: 0.95em;
+    line-height: 1.4;
 }
