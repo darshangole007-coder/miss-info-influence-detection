@@ -1,0 +1,10 @@
+flask
+pandas
+numpy
+scikit-learn
+nltk
+joblib
+newsapi-python
+wikipedia
+requests
+python-dotenv
