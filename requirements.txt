@@ -8,3 +8,4 @@ newsapi-python
 wikipedia
 requests
 python-dotenv
+gunicorn
