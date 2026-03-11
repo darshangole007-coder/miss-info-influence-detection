@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Misinformation Detection</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .article { border: 1px solid #ddd; margin: 10px; padding: 10px; border-radius: 8px; }
+        .misinfo { background: #ffebee; }
+        .genuine { background: #e8f5e9; }
+    </style>
+</head>
+<body>
+
+<h1>🛡️ AI Misinformation & Influence Detection</h1>
+
+<h2>Single Text Analysis</h2>
+<textarea id="text" placeholder="Enter news article or social media post..."></textarea>
+<button onclick="analyze()">Analyze Text</button>
+
+<h2>Fetch & Scan Recent News</h2>
+<input type="text" id="query" placeholder="Search topic (e.g. AI, election, health)" value="AI OR vaccine">
+<button onclick="fetchNews()">Fetch & Analyze News</button>
+
+<div id="output"></div>
+<div id="news-results"></div>
+
+<script>
+async function analyze() {
+    const text = document.getElementById("text").value;
+    const response = await fetch("/predict", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ text })
+    });
+    const data = await response.json();
+    document.getElementById("output").innerHTML = `
+        <h3>Result</h3>
+        <p><b>Classification:</b> ${data.label}</p>
+        <p><b>Confidence:</b> ${data.confidence}%</p>
+        <p><b>Influence Risk Score:</b> ${data.risk_score}</p>
+    `;
+}
+
+async function fetchNews() {
+    const query = document.getElementById("query").value;
+    const url = `/fetch_news?q=${encodeURIComponent(query)}`;
+    const response = await fetch(url);
+    const data = await response.json();
+
+    let html = "<h3>Analyzed News Articles</h3>";
+    if (data.error) {
+        html += `<p style="color:red;">Error: ${data.error}</p>`;
+    } else if (data.articles.length === 0) {
+        html += "<p>No articles found.</p>";
+    } else {
+        data.articles.forEach(article => {
+            const cls = article.label === "Misinformation" ? "misinfo" : "genuine";
+            html += `
+                <div class="article ${cls}">
+                    <h4><a href="$$   {article.url}" target="_blank">   $${article.title}</a></h4>
+                    <p><b>Source:</b> ${article.source} | <b>Published:</b> ${article.publishedAt}</p>
+                    <p>${article.text_snippet}</p>
+                    <p><b>Classification:</b> ${article.label}</p>
+                    <p><b>Confidence:</b> ${article.confidence}%</p>
+                    <p><b>Influence Risk:</b> ${article.risk_score}</p>
+                </div>
+            `;
+        });
+    }
+    document.getElementById("news-results").innerHTML = html;
+}
+</script>
+
+</body>
+</html>
